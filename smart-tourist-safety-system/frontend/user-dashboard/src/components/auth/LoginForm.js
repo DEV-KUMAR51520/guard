@@ -15,11 +15,13 @@ const LoginForm = () => {
   const initialValues = {
     phone: '',
     password: '',
-    csrfToken: csrfToken
+    csrf_token: csrfToken
   };
 
   const validationSchema = Yup.object({
-    phone: Yup.string().required('Phone number is required'),
+    phone: Yup.string()
+      .required('Phone number is required')
+      .matches(/^\+?[0-9]{10,15}$/, 'Please enter a valid phone number'),
     password: Yup.string().required('Password is required')
   });
 
@@ -32,7 +34,6 @@ const LoginForm = () => {
       setStatus({ success: true });
     } catch (err) {
       setStatus({ success: false });
-      console.error('Login error:', err);
     } finally {
       setSubmitting(false);
       setIsSubmitting(false);

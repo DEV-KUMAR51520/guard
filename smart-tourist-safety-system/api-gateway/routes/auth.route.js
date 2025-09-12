@@ -335,30 +335,4 @@ router.get('/profile', auth, async (req, res) => {
   }
 });
 
-// @route   GET /api/auth/verify
-// @desc    Verify token and get user data
-// @access  Private
-router.get('/verify', auth, async (req, res) => {
-  try {
-    const touristQuery = `
-      SELECT id, name, phone, email, status 
-      FROM tourists 
-      WHERE id = $1
-    `;
-    const result = await db.query(touristQuery, [req.user.id]);
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'Tourist not found' });
-    }
-    
-    res.json({
-      user: result.rows[0],
-      isAuthenticated: true
-    });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
-});
-
 module.exports = router;

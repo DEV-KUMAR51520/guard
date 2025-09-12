@@ -133,7 +133,7 @@ const RegistrationForm = ({ onSuccess }) => {
         formData.append('profile_picture', values.profilePicture);
       }
       
-      // Send the form data to the new API service
+      // Send the form data to the server
       await register(formData);
       setStatus({ success: true });
       if (onSuccess) onSuccess();
