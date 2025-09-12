@@ -26,20 +26,140 @@
         <!-- Login/Registration View -->
         <div id="auth-view" class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md mx-auto my-auto transition-opacity duration-500">
             <h1 class="text-3xl font-bold text-center text-gray-800 mb-2">Welcome to TrailShield</h1>
-            <p class="text-center text-gray-600 mb-8">Login to your personal safety dashboard.</p>
-            <form id="auth-form" class="space-y-4">
+            <p class="text-center text-gray-600 mb-4">Your personal safety dashboard.</p>
+            
+            <!-- Auth Tabs -->
+            <div class="flex border-b border-gray-200 mb-6">
+                <button id="login-tab" class="flex-1 py-2 px-4 text-center border-b-2 border-blue-500 font-medium text-blue-600 focus:outline-none">
+                    Login
+                </button>
+                <button id="register-tab" class="flex-1 py-2 px-4 text-center text-gray-500 hover:text-gray-700 font-medium focus:outline-none">
+                    Register
+                </button>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="login-form" class="space-y-4">
+                <!-- CSRF Protection -->
+                <input type="hidden" name="csrf_token" id="login_csrf_token" value="{{ csrf_token }}">
+                
                 <div>
-                    <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
-                    <input type="tel" id="phone" name="phone" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="+91 9876543210" required>
+                    <label for="login-phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                    <input type="tel" id="login-phone" name="phone" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="+91 9876543210" required>
                 </div>
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                    <input type="password" id="password" name="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="••••••••" required>
+                <div class="relative">
+                    <label for="login-password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <div class="flex items-center">
+                        <input type="password" id="login-password" name="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="••••••••" required>
+                        <button type="button" class="password-toggle absolute right-3 top-8 text-gray-500 focus:outline-none" data-target="login-password">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
+                <div id="login-error" class="text-sm text-red-600 hidden"></div>
                 <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                     Login
                 </button>
             </form>
+            
+            <!-- Registration Form -->
+            <form id="register-form" class="space-y-4 hidden">
+                <!-- CSRF Protection -->
+                <input type="hidden" name="csrf_token" id="csrf_token" value="{{ csrf_token }}">
+                
+                <!-- Required Fields -->
+                <div>
+                    <label for="register-name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                    <input type="text" id="register-name" name="name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="John Doe" required>
+                </div>
+                <div>
+                    <label for="register-email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                    <input type="email" id="register-email" name="email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="john@example.com" required>
+                    <p id="email-validation" class="mt-1 text-xs text-gray-500">Please enter a valid email address</p>
+                </div>
+                <div>
+                    <label for="register-phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                    <input type="tel" id="register-phone" name="phone" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="+91 9876543210" required>
+                </div>
+                <div class="relative">
+                    <label for="register-password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <div class="flex items-center">
+                        <input type="password" id="register-password" name="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="••••••••" required>
+                        <button type="button" class="password-toggle absolute right-3 top-8 text-gray-500 focus:outline-none" data-target="register-password">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="password-strength" class="mt-1">
+                        <div class="flex space-x-1">
+                            <div class="h-1 w-1/4 rounded bg-gray-200"></div>
+                            <div class="h-1 w-1/4 rounded bg-gray-200"></div>
+                            <div class="h-1 w-1/4 rounded bg-gray-200"></div>
+                            <div class="h-1 w-1/4 rounded bg-gray-200"></div>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">Password must be at least 8 characters with letters, numbers and special characters</p>
+                    </div>
+                </div>
+                <div class="relative">
+                    <label for="register-confirm-password" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                    <div class="flex items-center">
+                        <input type="password" id="register-confirm-password" name="confirm-password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="••••••••" required>
+                        <button type="button" class="password-toggle absolute right-3 top-8 text-gray-500 focus:outline-none" data-target="register-confirm-password">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <p id="password-match" class="mt-1 text-xs text-gray-500">Passwords must match</p>
+                </div>
+                
+                <!-- Optional Fields -->
+                <div>
+                    <label for="register-emergency-contact" class="block text-sm font-medium text-gray-700">Emergency Contact</label>
+                    <input type="text" id="register-emergency-contact" name="emergency_contact" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Contact Name and Phone">
+                </div>
+                <div>
+                    <label for="register-entry-point" class="block text-sm font-medium text-gray-700">Entry Point</label>
+                    <input type="text" id="register-entry-point" name="entry_point" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="e.g. Guwahati Airport">
+                </div>
+                <div>
+                    <label for="register-trip-duration" class="block text-sm font-medium text-gray-700">Trip Duration</label>
+                    <input type="text" id="register-trip-duration" name="trip_duration" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="e.g. 7 days">
+                </div>
+                <div>
+                    <label for="register-profile-picture" class="block text-sm font-medium text-gray-700">Profile Picture (Optional)</label>
+                    <input type="file" id="register-profile-picture" name="profile_picture" accept="image/*" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+                
+                <div class="flex items-center">
+                    <input type="checkbox" id="register-terms" name="terms" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" required>
+                    <label for="register-terms" class="ml-2 block text-sm text-gray-700">I agree to the <a href="#" class="text-blue-600 hover:underline">Terms and Conditions</a></label>
+                </div>
+                
+                <div id="register-error" class="text-sm text-red-600 hidden"></div>
+                
+                <button type="submit" id="register-submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Register
+                </button>
+            </form>
+            
+            <!-- Registration Success Message -->
+            <div id="registration-success" class="hidden text-center py-8">
+                <svg class="mx-auto h-12 w-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h3 class="mt-2 text-xl font-medium text-gray-900">Registration Successful!</h3>
+                <p class="mt-1 text-sm text-gray-500">Your account has been created successfully.</p>
+                <button id="goto-login" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Proceed to Login
+                </button>
+            </div>
         </div>
 
         <!-- Dashboard View -->
@@ -89,18 +209,592 @@
     <!-- JavaScript for interactivity -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
     <script>
+        // API Configuration
+        const API_BASE_URL = 'http://localhost:5000/api';
+        
+        // Rate limiting configuration
+        const rateLimitConfig = {
+            maxAttempts: 5,
+            timeWindow: 60 * 1000, // 1 minute in milliseconds
+            loginAttempts: 0,
+            registerAttempts: 0,
+            lastLoginAttempt: 0,
+            lastRegisterAttempt: 0
+        };
+        
+        // DOM Elements
         const appContainer = document.getElementById('app-container');
         const authView = document.getElementById('auth-view');
         const dashboardView = document.getElementById('dashboard-view');
-        const authForm = document.getElementById('auth-form');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const loginTab = document.getElementById('login-tab');
+        const registerTab = document.getElementById('register-tab');
         const logoutBtn = document.getElementById('logout-btn');
         const panicBtn = document.getElementById('panic-btn');
         const safetyScoreValue = document.getElementById('safety-score-value');
         const statusBadge = document.getElementById('status-badge');
+        const tripDetails = document.getElementById('trip-details');
+        const registrationSuccess = document.getElementById('registration-success');
+        const gotoLogin = document.getElementById('goto-login');
         
+        // Authentication state
+        let authToken = localStorage.getItem('authToken');
+        let currentUser = JSON.parse(localStorage.getItem('currentUser'));
         let map;
-        let userMarker;
+        
+        // Check if user is already logged in
+        function checkAuthStatus() {
+            if (authToken && currentUser) {
+                showDashboard();
+                loadUserProfile();
+                initMap();
+            }
+        }
+        
+        // Tab switching functionality
+        loginTab.addEventListener('click', () => {
+            loginTab.classList.add('border-b-2', 'border-blue-500', 'text-blue-600');
+            loginTab.classList.remove('text-gray-500');
+            registerTab.classList.remove('border-b-2', 'border-blue-500', 'text-blue-600');
+            registerTab.classList.add('text-gray-500');
+            
+            loginForm.classList.remove('hidden');
+            registerForm.classList.add('hidden');
+            registrationSuccess.classList.add('hidden');
+        });
+        
+        registerTab.addEventListener('click', () => {
+            registerTab.classList.add('border-b-2', 'border-blue-500', 'text-blue-600');
+            registerTab.classList.remove('text-gray-500');
+            loginTab.classList.remove('border-b-2', 'border-blue-500', 'text-blue-600');
+            loginTab.classList.add('text-gray-500');
+            
+            registerForm.classList.remove('hidden');
+            loginForm.classList.add('hidden');
+            registrationSuccess.classList.add('hidden');
+        });
+        
+        // Check rate limiting
+        function checkRateLimit(type) {
+            const now = Date.now();
+            
+            if (type === 'login') {
+                // Reset counter if time window has passed
+                if (now - rateLimitConfig.lastLoginAttempt > rateLimitConfig.timeWindow) {
+                    rateLimitConfig.loginAttempts = 0;
+                }
+                
+                rateLimitConfig.lastLoginAttempt = now;
+                rateLimitConfig.loginAttempts++;
+                
+                return rateLimitConfig.loginAttempts <= rateLimitConfig.maxAttempts;
+            } else if (type === 'register') {
+                // Reset counter if time window has passed
+                if (now - rateLimitConfig.lastRegisterAttempt > rateLimitConfig.timeWindow) {
+                    rateLimitConfig.registerAttempts = 0;
+                }
+                
+                rateLimitConfig.lastRegisterAttempt = now;
+                rateLimitConfig.registerAttempts++;
+                
+                return rateLimitConfig.registerAttempts <= rateLimitConfig.maxAttempts;
+            }
+            
+            return true;
+        }
+        
+        // Calculate time remaining for rate limit
+        function getRateLimitTimeRemaining(type) {
+            const now = Date.now();
+            const lastAttempt = type === 'login' ? rateLimitConfig.lastLoginAttempt : rateLimitConfig.lastRegisterAttempt;
+            const timeElapsed = now - lastAttempt;
+            const timeRemaining = Math.ceil((rateLimitConfig.timeWindow - timeElapsed) / 1000);
+            
+            return timeRemaining > 0 ? timeRemaining : 0;
+        }
+        
+        // Handle login form submission
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Check rate limiting
+            if (!checkRateLimit('login')) {
+                const loginError = document.getElementById('login-error');
+                const timeRemaining = getRateLimitTimeRemaining('login');
+                loginError.textContent = `Too many login attempts. Please try again in ${timeRemaining} seconds.`;
+                loginError.classList.remove('hidden');
+                return;
+            }
+            
+            const phone = document.getElementById('login-phone').value;
+            const password = document.getElementById('login-password').value;
+            
+            try {
+                // Show loading state
+                const loginButton = loginForm.querySelector('button[type="submit"]');
+                const originalButtonText = loginButton.innerHTML;
+                loginButton.innerHTML = '<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Logging in...';
+                loginButton.disabled = true;
+                
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ phone, password })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || 'Login failed');
+                }
+                
+                // Save auth token and user data
+                authToken = data.accessToken;
+                currentUser = data.tourist;
+                
+                localStorage.setItem('authToken', authToken);
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // Show dashboard
+                showDashboard();
+                loadUserProfile();
+                initMap();
+                
+            } catch (error) {
+                const loginError = document.getElementById('login-error');
+                loginError.textContent = error.message || 'Login failed. Please try again.';
+                loginError.classList.remove('hidden');
+                console.error('Login error:', error);
+            } finally {
+                // Reset button state
+                const loginButton = loginForm.querySelector('button[type="submit"]');
+                loginButton.innerHTML = 'Login';
+                loginButton.disabled = false;
+            }
+        });
+        
+        // Password toggle functionality
+        document.querySelectorAll('.password-toggle').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const targetId = toggle.getAttribute('data-target');
+                const passwordInput = document.getElementById(targetId);
+                
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    toggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    </svg>`;
+                } else {
+                    passwordInput.type = 'password';
+                    toggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>`;
+                }
+            });
+        });
+        
+        // Email validation function
+        function validateEmail(email) {
+            const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            return re.test(String(email).toLowerCase());
+        }
+        
+        // Password strength validation
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            const strengthBars = document.querySelectorAll('#password-strength .h-1');
+            const strengthText = document.querySelector('#password-strength p');
+            
+            // Length check
+            if (password.length >= 8) strength += 1;
+            
+            // Contains lowercase
+            if (/[a-z]/.test(password)) strength += 1;
+            
+            // Contains uppercase
+            if (/[A-Z]/.test(password)) strength += 1;
+            
+            // Contains number
+            if (/[0-9]/.test(password)) strength += 1;
+            
+            // Contains special character
+            if (/[^a-zA-Z0-9]/.test(password)) strength += 1;
+            
+            // Update strength bars
+            strengthBars.forEach((bar, index) => {
+                if (index < strength) {
+                    bar.classList.remove('bg-gray-200');
+                    if (strength <= 2) {
+                        bar.classList.add('bg-red-500');
+                    } else if (strength <= 4) {
+                        bar.classList.add('bg-yellow-500');
+                    } else {
+                        bar.classList.add('bg-green-500');
+                    }
+                } else {
+                    bar.className = 'h-1 w-1/4 rounded bg-gray-200';
+                }
+            });
+            
+            // Update text
+            if (strength <= 2) {
+                strengthText.textContent = 'Weak password - add more variety';
+                strengthText.className = 'mt-1 text-xs text-red-500';
+                return false;
+            } else if (strength <= 4) {
+                strengthText.textContent = 'Medium strength - consider adding more complexity';
+                strengthText.className = 'mt-1 text-xs text-yellow-500';
+                return true;
+            } else {
+                strengthText.textContent = 'Strong password!';
+                strengthText.className = 'mt-1 text-xs text-green-500';
+                return true;
+            }
+        }
+        
+        // Real-time email validation
+        const registerEmailInput = document.getElementById('register-email');
+        const emailValidation = document.getElementById('email-validation');
+        
+        registerEmailInput.addEventListener('input', () => {
+            const email = registerEmailInput.value;
+            if (email.length > 0) {
+                if (validateEmail(email)) {
+                    emailValidation.textContent = 'Valid email address';
+                    emailValidation.className = 'mt-1 text-xs text-green-500';
+                    registerEmailInput.classList.remove('border-red-500');
+                    registerEmailInput.classList.add('border-green-500');
+                } else {
+                    emailValidation.textContent = 'Please enter a valid email address';
+                    emailValidation.className = 'mt-1 text-xs text-red-500';
+                    registerEmailInput.classList.remove('border-green-500');
+                    registerEmailInput.classList.add('border-red-500');
+                }
+            } else {
+                emailValidation.textContent = 'Please enter an email address';
+                emailValidation.className = 'mt-1 text-xs text-gray-500';
+                registerEmailInput.classList.remove('border-red-500', 'border-green-500');
+            }
+        });
+        
+        // Real-time password validation
+        const registerPasswordInput = document.getElementById('register-password');
+        registerPasswordInput.addEventListener('input', () => {
+            checkPasswordStrength(registerPasswordInput.value);
+        });
+        
+        // Password match validation
+        const confirmPasswordInput = document.getElementById('register-confirm-password');
+        const passwordMatch = document.getElementById('password-match');
+        
+        confirmPasswordInput.addEventListener('input', () => {
+            const password = registerPasswordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            if (confirmPassword.length > 0) {
+                if (password === confirmPassword) {
+                    passwordMatch.textContent = 'Passwords match';
+                    passwordMatch.className = 'mt-1 text-xs text-green-500';
+                    confirmPasswordInput.classList.remove('border-red-500');
+                    confirmPasswordInput.classList.add('border-green-500');
+                } else {
+                    passwordMatch.textContent = 'Passwords do not match';
+                    passwordMatch.className = 'mt-1 text-xs text-red-500';
+                    confirmPasswordInput.classList.remove('border-green-500');
+                    confirmPasswordInput.classList.add('border-red-500');
+                }
+            } else {
+                passwordMatch.textContent = 'Please confirm your password';
+                passwordMatch.className = 'mt-1 text-xs text-gray-500';
+                confirmPasswordInput.classList.remove('border-red-500', 'border-green-500');
+            }
+        });
+        
+        // Handle registration form submission
+        const registerForm = document.getElementById('register-form');
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Get form values
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const phone = document.getElementById('register-phone').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+            const emergencyContact = document.getElementById('register-emergency-contact').value;
+            const entryPoint = document.getElementById('register-entry-point').value;
+            const tripDuration = document.getElementById('register-trip-duration').value;
+            const termsAgreed = document.getElementById('register-terms').checked;
+            
+            // Validate form
+            let isValid = true;
+            let errorMessage = '';
+            
+            if (!validateEmail(email)) {
+                isValid = false;
+                errorMessage = 'Please enter a valid email address';
+            } else if (!checkPasswordStrength(password)) {
+                isValid = false;
+                errorMessage = 'Password is too weak. Please use a stronger password';
+            } else if (password !== confirmPassword) {
+                isValid = false;
+                errorMessage = 'Passwords do not match';
+            } else if (!termsAgreed) {
+                isValid = false;
+                errorMessage = 'You must agree to the Terms and Conditions';
+            }
+            
+            if (!isValid) {
+                const registerError = document.getElementById('register-error');
+                registerError.textContent = errorMessage;
+                registerError.classList.remove('hidden');
+                return;
+            }
+            
+            // Show loading state
+            const registerButton = registerForm.querySelector('button[type="submit"]');
+            const originalButtonText = registerButton.innerHTML;
+            registerButton.innerHTML = '<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Registering...';
+            registerButton.disabled = true;
+            
+            try {
+                // Handle file upload if profile picture is provided
+                let profilePictureUrl = null;
+                const profilePicture = document.getElementById('register-profile-picture').files[0];
+                
+                if (profilePicture) {
+                    // In a real implementation, you would upload the file to a server
+                    // For this demo, we'll just create a fake URL
+                    profilePictureUrl = 'profile_picture_url_placeholder';
+                }
+                
+                // Prepare registration data
+                const registrationData = {
+                    name,
+                    email,
+                    phone,
+                    password,
+                    emergency_contact: emergencyContact,
+                    entry_point: entryPoint,
+                    trip_duration: tripDuration,
+                    profile_picture: profilePictureUrl
+                };
+                
+                // Send registration request
+                const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(registrationData)
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || 'Registration failed');
+                }
+                
+                // Show success message
+                registerForm.classList.add('hidden');
+                registrationSuccess.classList.remove('hidden');
+                
+                // Clear form
+                registerForm.reset();
+                
+            } catch (error) {
+                const registerError = document.getElementById('register-error');
+                registerError.textContent = error.message || 'Registration failed. Please try again.';
+                registerError.classList.remove('hidden');
+                console.error('Registration error:', error);
+            } finally {
+                // Reset button state
+                registerButton.innerHTML = originalButtonText;
+                registerButton.disabled = false;
+            }
+        });
+        
+        // Go to login button
+        document.getElementById('goto-login').addEventListener('click', () => {
+            loginTab.click();
+        });
+        
+        // Load user profile data
+        async function loadUserProfile() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+                    headers: {
+                        'x-auth-token': authToken
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load profile');
+                }
+                
+                const profileData = await response.json();
+                
+                // Update safety score based on status
+                let safetyScore = 95; // Default
+                let statusText = 'Safe';
+                
+                if (profileData.status === 'At-Risk') {
+                    safetyScore = 65;
+                    statusText = 'At-Risk';
+                    safetyScoreValue.className = 'text-6xl font-bold text-yellow-500';
+                    statusBadge.className = 'px-3 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-800';
+                } else if (profileData.status === 'Emergency') {
+                    safetyScore = 25;
+                    statusText = 'Emergency';
+                    safetyScoreValue.className = 'text-6xl font-bold text-red-500';
+                    statusBadge.className = 'px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-800 blinking';
+                } else {
+                    safetyScoreValue.className = 'text-6xl font-bold text-green-500';
+                    statusBadge.className = 'px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800';
+                }
+                
+                safetyScoreValue.textContent = safetyScore;
+                statusBadge.textContent = `Status: ${statusText}`;
+                
+                // Update trip details
+                tripDetails.innerHTML = `
+                    Entry Point: ${profileData.entry_point}<br>
+                    Trip Duration: ${profileData.trip_duration}<br>
+                    Emergency Contact: ${profileData.emergency_contact}
+                `;
+                
+                // Update map with current location if available
+                if (profileData.current_latitude && profileData.current_longitude) {
+                    updateMapLocation(profileData.current_latitude, profileData.current_longitude);
+                }
+                
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+        
+        // Handle logout
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUser');
+            authToken = null;
+            currentUser = null;
+            showLoginForm();
+        });
+        
+        // Handle panic button
+        panicBtn.addEventListener('click', async () => {
+            if (!authToken) return;
+            
+            if (!confirm('Are you sure you want to trigger an emergency alert?')) return;
+            
+            try {
+                // Get current location
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    const { latitude, longitude } = position.coords;
+                    
+                    const response = await fetch(`${API_BASE_URL}/auth/panic`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-auth-token': authToken
+                        },
+                        body: JSON.stringify({ latitude, longitude })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to send panic alert');
+                    }
+                    
+                    alert('Emergency alert sent! Authorities have been notified.');
+                    
+                    // Update UI to reflect emergency status
+                    safetyScoreValue.textContent = '25';
+                    safetyScoreValue.className = 'text-6xl font-bold text-red-500';
+                    statusBadge.textContent = 'Status: Emergency';
+                    statusBadge.className = 'px-3 py-1 text-sm font-medium rounded-full bg-red-100 text-red-800 blinking';
+                    
+                    // Reload profile data
+                    loadUserProfile();
+                    
+                }, (error) => {
+                    console.error('Geolocation error:', error);
+                    alert('Could not get your location. Please enable location services.');
+                });
+                
+            } catch (error) {
+                console.error('Panic alert error:', error);
+                alert('Failed to send panic alert. Please try again.');
+            }
+        });
+        // Initialize map with user's location
+        function initMap() {
+            if (mapInitialized) return;
+            
+            // Default location (can be updated with user's actual location)
+            const defaultLat = 26.1445; // Assam coordinates
+            const defaultLng = 91.7362;
+            
+            map = L.map('map').setView([defaultLat, defaultLng], 13);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+            // Add user marker
+            userMarker = L.marker([defaultLat, defaultLng]).addTo(map);
+            userMarker.bindPopup("Your current location").openPopup();
+            
+            mapInitialized = true;
+            
+            // Try to get user's actual location
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const { latitude, longitude } = position.coords;
+                    updateMapLocation(latitude, longitude);
+                },
+                error => {
+                    console.error('Geolocation error:', error);
+                }
+            );
+        }
+        
+        // Update map with new location
+        function updateMapLocation(lat, lng) {
+            if (!mapInitialized) {
+                initMap();
+            }
+            
+            map.setView([lat, lng], 13);
+            userMarker.setLatLng([lat, lng]);
+            userMarker.bindPopup("Your current location").openPopup();
+            
+            // Update current location display
+            currentLocation.textContent = `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`;
+        }
+        
+        // Show login form
+        function showLoginForm() {
+            authSection.style.display = 'block';
+            dashboardSection.style.display = 'none';
+        }
+        
+        // Show dashboard
+        function showDashboard() {
+            authSection.style.display = 'none';
+            dashboardSection.style.display = 'flex';
+        }
+        
         let mapInitialized = false;
+        
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuthStatus();
+        });
         let safetyScore = 95;
 
         // Mock data
@@ -134,6 +828,9 @@
             location.reload(); // Simple refresh to reset state for prototype
         };
 
+        // This function is now replaced by the implementation at the top of the file
+        // Keeping this commented out for reference
+        /*
         const initMap = () => {
             map = L.map('map').setView([mockUser.lat, mockUser.lng], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -143,21 +840,39 @@
             userMarker = L.marker([mockUser.lat, mockUser.lng]).addTo(map)
                 .bindPopup(`<b>${mockUser.name}</b><br>You are here.`);
         };
+        */
         
+        // Location simulation for demo purposes
         const startLocationSimulation = () => {
+            // Only run simulation if no real user data is available
+            if (!currentUser) return;
+            
             setInterval(() => {
+                // Get current position from marker
+                const currentPos = userMarker.getLatLng();
                 const latChange = (Math.random() - 0.5) * 0.001;
                 const lngChange = (Math.random() - 0.5) * 0.001;
-                mockUser.lat += latChange;
-                mockUser.lng += lngChange;
-                userMarker.setLatLng([mockUser.lat, mockUser.lng]);
+                
+                // Update marker position
+                const newLat = currentPos.lat + latChange;
+                const newLng = currentPos.lng + lngChange;
+                updateMapLocation(newLat, newLng);
             }, 5000); // Update every 5 seconds
         };
 
+        // Safety score simulation for demo purposes
         const startSafetyScoreSimulation = () => {
+            // Only run simulation if no real user data is available
+            if (!currentUser) return;
+            
             setInterval(() => {
-                safetyScore = Math.max(70, Math.min(100, safetyScore + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 3)));
-                updateSafetyScore(safetyScore);
+                // Get current safety score from DOM
+                let currentScore = parseInt(safetyScoreValue.textContent);
+                if (isNaN(currentScore)) currentScore = 95;
+                
+                // Randomly adjust score within safe bounds
+                const newScore = Math.max(70, Math.min(100, currentScore + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 3)));
+                updateSafetyScore(newScore);
             }, 10000); // Update every 10 seconds
         };
 
