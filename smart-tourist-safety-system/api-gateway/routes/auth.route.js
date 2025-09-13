@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const db = require('../db');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { body, validationResult } = require('express-validator');
 const axios = require('axios');
 const multer = require('multer');
 const path = require('path');
+
+// Service URLs from environment variables
+const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://localhost:3001';
+const BLOCKCHAIN_SERVICE_URL = process.env.BLOCKCHAIN_SERVICE_URL || 'http://localhost:5002';
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -49,143 +49,75 @@ router.get('/tourists', auth, async (req, res) => {
 });
 
 // @route   POST /api/auth/register
-// @desc    Register a new tourist
+// @desc    Register a tourist
 // @access  Public
-router.post('/register', upload.single('profile_picture'), [
-  body('name').not().isEmpty().withMessage('Name is required'),
-  body('phone').not().isEmpty().withMessage('Phone number is required'),
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-  body('email').isEmail().withMessage('Valid email is required'),
-  body('emergency_contact').optional(),
-  body('entry_point').optional(),
-  body('trip_duration').optional()
-], async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  const { name, phone, password, email, emergency_contact, entry_point, trip_duration } = req.body;
-  const profilePicture = req.file ? `/uploads/${req.file.filename}` : null;
-
+router.post('/register', upload.single('profile_picture'), async (req, res) => {
   try {
-    // Check if tourist already exists
-    const checkUserQuery = 'SELECT * FROM tourists WHERE phone = $1 OR email = $2';
-    const existingUser = await db.query(checkUserQuery, [phone, email]);
-    if (existingUser.rows.length > 0) {
-      return res.status(400).json({ message: 'Tourist already exists with this phone number or email' });
+    const { name, phone, email, password, emergency_contact, entry_point, trip_duration } = req.body;
+    
+    // Validate required fields
+    if (!name || !phone || !email || !password) {
+      return res.status(400).json({ message: 'Please provide all required fields' });
+    }
+
+    // Get profile picture path if uploaded
+    const profilePicture = req.file ? `/uploads/${req.file.filename}` : null;
+    
+    // Forward registration request to Auth Service
+    const registrationData = {
+      name,
+      phone,
+      email,
+      password,
+      emergency_contact,
+      entry_point,
+      trip_duration,
+      profile_picture: profilePicture
+    };
+    
+    const response = await axios.post(`${AUTH_SERVICE_URL}/api/auth/register`, registrationData);
+    
+    // Return the response from Auth Service
+    res.status(response.status).json(response.data);
+  } catch (err) {
+    console.error('Registration error:', err.message);
+    
+    // Forward error response from Auth Service if available
+    if (err.response) {
+      return res.status(err.response.status).json(err.response.data);
     }
     
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
-    
-    // Insert new tourist
-    const insertUserQuery = `
-      INSERT INTO tourists (
-        name, phone, email, password_hash, profile_picture, emergency_contact, entry_point, trip_duration
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING id, name, phone, email
-    `;
-    const values = [name, phone, email, passwordHash, profilePicture, emergency_contact, entry_point, trip_duration];
-    const newUserResult = await db.query(insertUserQuery, values);
-    const newTourist = newUserResult.rows[0];
-
-    // Generate a unique identifier for blockchain (using email hash instead of Aadhaar)
-    const uniqueIdentifier = await bcrypt.hash(email, 10);
-    
-    // Call the Blockchain Microservice via HTTP to register the tourist
-    (async () => {
-      try {
-        const response = await axios.post('http://localhost:5002/api/blockchain/register', {
-          uniqueIdentifier: uniqueIdentifier
-        });
-        const { blockchainId } = response.data;
-        
-        const updateQuery = 'UPDATE tourists SET blockchain_id = $1 WHERE id = $2';
-        await db.query(updateQuery, [blockchainId, newTourist.id]);
-
-        console.log(`Successfully updated tourist ${newTourist.id} with blockchain ID: ${blockchainId}`);
-      } catch (e) {
-        console.error(`Failed to update blockchain ID for tourist ${newTourist.id}: ${e.message}`);
-      }
-    })();
-
-    // Create and sign a JWT token
-    const payload = {
-      tourist: { id: newTourist.id },
-    };
-    const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-    res.status(201).json({
-      message: 'Tourist registered successfully. Your digital ID is being generated.',
-      tourist: {
-        id: newTourist.id,
-        name: newTourist.name,
-        phone: newTourist.phone,
-        email: newTourist.email,
-        profile_picture: profilePicture,
-        blockchainId: null, // Return null to indicate it's not ready yet
-      },
-      accessToken,
-    });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(500).json({ message: 'Server Error' });
   }
 });
 
 // @route   POST /api/auth/login
 // @desc    Authenticate tourist & get token
 // @access  Public
-router.post('/login', [
-  body('phone').not().isEmpty().withMessage('Phone number is required'),
-  body('password').exists().withMessage('Password is required')
-], async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  const { phone, password } = req.body;
-
+router.post('/login', async (req, res) => {
   try {
-    // Check if tourist exists
-    const touristQuery = 'SELECT id, name, phone, password_hash, status FROM tourists WHERE phone = $1';
-    const result = await db.query(touristQuery, [phone]);
+    const { phone, password } = req.body;
     
-    if (result.rows.length === 0) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+    // Validate required fields
+    if (!phone || !password) {
+      return res.status(400).json({ message: 'Please provide phone and password' });
     }
-
-    const tourist = result.rows[0];
-
-    // Verify password
-    const isMatch = await bcrypt.compare(password, tourist.password_hash);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
-
-    // Create and sign JWT token
-    const payload = {
-      tourist: { id: tourist.id }
-    };
-
-    const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-    res.json({
-      message: 'Login successful',
-      tourist: {
-        id: tourist.id,
-        name: tourist.name,
-        phone: tourist.phone,
-        status: tourist.status
-      },
-      accessToken
-    });
+    
+    // Forward login request to Auth Service
+    const loginData = { phone, password };
+    const response = await axios.post(`${AUTH_SERVICE_URL}/api/auth/login`, loginData);
+    
+    // Return the response from Auth Service
+    res.status(response.status).json(response.data);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    console.error('Login error:', err.message);
+    
+    // Forward error response from Auth Service if available
+    if (err.response) {
+      return res.status(err.response.status).json(err.response.data);
+    }
+    
+    res.status(500).json({ message: 'Server Error' });
   }
 });
 
@@ -207,7 +139,7 @@ router.post('/panic', auth, async (req, res) => {
     }
     
     // Call the Blockchain microservice to record an immutable incident
-    const blockchainResponse = await axios.post('http://localhost:5002/api/blockchain/incident', {
+    const blockchainResponse = await axios.post(`${BLOCKCHAIN_SERVICE_URL}/api/blockchain/incident`, {
       touristId: blockchainId,
     });
     

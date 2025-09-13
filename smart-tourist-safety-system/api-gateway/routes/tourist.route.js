@@ -5,6 +5,9 @@ const db = require('../db');
 const auth = require('../middleware/auth'); // Your JWT middleware
 const axios = require('axios');
 
+// Service URLs from environment variables
+const BLOCKCHAIN_SERVICE_URL = process.env.BLOCKCHAIN_SERVICE_URL || 'http://localhost:5002';
+
 //route to update tourist location and get risk assessment
 router.post('/location', auth, [
   body('latitude').isFloat().withMessage('Invalid latitude'),
@@ -57,7 +60,7 @@ router.post('/panic', auth, async (req, res) => {
       return res.status(400).json({ message: 'Tourist has no blockchain ID. Please re-register.' });
     }
     // Call the Blockchain microservice to record an immutable incident
-    const blockchainResponse = await axios.post('http://localhost:5002/api/blockchain/incident', {
+    const blockchainResponse = await axios.post(`${BLOCKCHAIN_SERVICE_URL}/api/blockchain/incident`, {
       touristId: blockchainId,
     });
     const txHash = blockchainResponse.data.txHash;
@@ -89,7 +92,7 @@ router.post('/resolve-incident', auth, async (req, res) => {
       return res.status(400).json({ message: 'Tourist has no blockchain ID.' });
     }
     // Call the Blockchain microservice to resolve the incident on-chain
-    await axios.post('http://localhost:5002/api/blockchain/resolve-incident', {
+    await axios.post(`${BLOCKCHAIN_SERVICE_URL}/api/blockchain/resolve-incident`, {
       touristId: blockchainId,
     });
     // Update the tourist's status in the database
