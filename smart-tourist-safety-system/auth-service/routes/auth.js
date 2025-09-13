@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { check, validationResult } = require('express-validator');
 const axios = require('axios');
-const db = require('../utils/db');
+const db = require('../utils/db-operations'); // Use enhanced db operations with retry logic
 const auth = require('../middleware/auth');
 
 // @route   POST api/auth/register

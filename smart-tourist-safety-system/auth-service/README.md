@@ -2,6 +2,59 @@
 
 This service provides a unified authentication layer for the Smart Tourist Safety System. It handles user registration, login, and token validation consistently across all services.
 
+## Database Connection Management
+
+The Auth Service uses PostgreSQL for data storage with the following features:
+
+### Connection Pooling
+
+The service implements connection pooling to efficiently manage database connections:
+
+- **Pool Size**: Configurable maximum number of clients in the pool
+- **Idle Timeout**: Connections are closed after a configurable idle period
+- **Connection Timeout**: Configurable timeout for new connection attempts
+
+### Error Handling and Retry Logic
+
+The service includes robust error handling with retry capabilities:
+
+- **Automatic Retries**: Failed queries are automatically retried with exponential backoff
+- **Error Classification**: Errors are classified as retryable or non-retryable
+- **Transaction Support**: Transactions are automatically retried on connection failures
+
+### Health Monitoring
+
+Database health is continuously monitored:
+
+- **Periodic Checks**: Regular health checks verify database connectivity
+- **Response Time Monitoring**: Alerts when query response time exceeds thresholds
+- **Health Status API**: The `/health` endpoint provides database health information
+- **Graceful Shutdown**: Connections are properly closed on service shutdown
+
+## Configuration
+
+Database connection settings can be configured through environment variables:
+
+```
+# Database Connection
+DB_USER=postgres
+DB_PASSWORD=your_password_here
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=tourist_safety
+
+# Connection Pool
+DB_POOL_MAX=20
+DB_IDLE_TIMEOUT=30000
+DB_CONNECTION_TIMEOUT=5000
+
+# Health Checks
+DB_HEALTH_CHECK_INTERVAL=30000
+DB_UNHEALTHY_THRESHOLD=3
+```
+
+See `.env.example` for all available configuration options.
+
 ## Purpose
 
 The Auth Service was created to address the fragmented authentication logic that existed between the API Gateway and the backend service. By centralizing authentication, we ensure:
