@@ -1,67 +1,35 @@
 # app/routes/auth.py
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from app import db
 from app.models.tourist import Tourist
-# from app.services.blockchain_service import BlockchainService
 import hashlib
+import requests
+import os
 
 auth_bp = Blueprint('auth', __name__)
-# blockchain_service = BlockchainService()
+
+# Get Auth Service URL from environment variable with fallback
+AUTH_SERVICE_URL = os.environ.get('AUTH_SERVICE_URL', 'http://auth-service:3001')
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
     try:
         data = request.get_json()
 
-        # Validate required fields
-        required_fields = ['name', 'phone', 'password', 'aadhaar', 'emergency_contact', 'entry_point', 'trip_duration']
-        for field in required_fields:
-            if field not in data:
-                return jsonify({'error': f'Missing field: {field}'}), 400
-
-        # Hash Aadhaar for privacy
-        aadhaar_hash = hashlib.sha256(data['aadhaar'].encode()).hexdigest()
-
-        # Check if tourist already exists
-        existing_tourist = Tourist.query.filter_by(aadhaar_hash=aadhaar_hash).first()
-        if existing_tourist:
-            return jsonify({'error': 'Tourist already registered'}), 409
-
-        # Create new tourist
-        tourist = Tourist(
-            name=data['name'],
-            phone=data['phone'],
-            aadhaar_hash=aadhaar_hash,
-            emergency_contact=data['emergency_contact'],
-            entry_point=data['entry_point'],
-            trip_duration=data['trip_duration']
+        # Forward registration request to Auth Service
+        response = requests.post(
+            f"{AUTH_SERVICE_URL}/api/auth/register",
+            json=data
         )
-        tourist.set_password(data['password'])
 
-        db.session.add(tourist)
-        db.session.commit()
-
-        # Generate blockchain ID
-        try:
-            blockchain_id = blockchain_service.create_digital_id(tourist.id, aadhaar_hash)
-            tourist.blockchain_id = blockchain_id
-            db.session.commit()
-        except Exception as e:
-            print(f"Blockchain ID generation failed: {e}")
-            # Continue without blockchain ID for demo
-
-        # Generate access token
-        access_token = create_access_token(identity=tourist.id)
-
-        return jsonify({
-            'message': 'Tourist registered successfully',
-            'tourist': tourist.to_dict(),
-            'access_token': access_token
-        }), 201
-
+        # Return the response from Auth Service
+        return jsonify(response.json()), response.status_code
+    except requests.RequestException as e:
+        current_app.logger.error(f"Auth Service connection error: {str(e)}")
+        return jsonify({'error': 'Authentication service unavailable'}), 503
     except Exception as e:
-        db.session.rollback()
+        current_app.logger.error(f"Registration error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @auth_bp.route('/login', methods=['POST'])
@@ -69,23 +37,19 @@ def login():
     try:
         data = request.get_json()
 
-        if 'phone' not in data or 'password' not in data:
-            return jsonify({'error': 'Phone and password required'}), 400
+        # Forward login request to Auth Service
+        response = requests.post(
+            f"{AUTH_SERVICE_URL}/api/auth/login",
+            json=data
+        )
 
-        tourist = Tourist.query.filter_by(phone=data['phone']).first()
-
-        if not tourist or not tourist.check_password(data['password']):
-            return jsonify({'error': 'Invalid credentials'}), 401
-
-        access_token = create_access_token(identity=tourist.id)
-
-        return jsonify({
-            'message': 'Login successful',
-            'tourist': tourist.to_dict(),
-            'access_token': access_token
-        }), 200
-
+        # Return the response from Auth Service
+        return jsonify(response.json()), response.status_code
+    except requests.RequestException as e:
+        current_app.logger.error(f"Auth Service connection error: {str(e)}")
+        return jsonify({'error': 'Authentication service unavailable'}), 503
     except Exception as e:
+        current_app.logger.error(f"Login error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @auth_bp.route('/profile', methods=['GET'])
@@ -101,4 +65,27 @@ def get_profile():
         return jsonify(tourist.to_dict()), 200
 
     except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@auth_bp.route('/verify', methods=['GET'])
+def verify_token():
+    try:
+        # Get token from header
+        token = request.headers.get('x-auth-token')
+        if not token:
+            return jsonify({'error': 'No token provided'}), 401
+
+        # Forward token verification request to Auth Service
+        response = requests.get(
+            f"{AUTH_SERVICE_URL}/api/auth/verify",
+            headers={'x-auth-token': token}
+        )
+
+        # Return the response from Auth Service
+        return jsonify(response.json()), response.status_code
+    except requests.RequestException as e:
+        current_app.logger.error(f"Auth Service connection error: {str(e)}")
+        return jsonify({'error': 'Authentication service unavailable'}), 503
+    except Exception as e:
+        current_app.logger.error(f"Token verification error: {str(e)}")
         return jsonify({'error': str(e)}), 500

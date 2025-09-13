@@ -6,3 +6,4 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET', 'your_jwt_secret_key')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
+    AUTH_SERVICE_URL = os.environ.get('AUTH_SERVICE_URL', 'http://auth-service:3001')
