@@ -38,7 +38,7 @@ Database connection settings can be configured through environment variables:
 ```
 # Database Connection
 DB_USER=postgres
-DB_PASSWORD=your_password_here
+DB_PASSWORD=postgres
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=tourist_safety
@@ -48,8 +48,46 @@ DB_POOL_MAX=20
 DB_IDLE_TIMEOUT=30000
 DB_CONNECTION_TIMEOUT=5000
 
+# Mock Database (for development and testing)
+MOCK_DB=true
+
 # Health Checks
 DB_HEALTH_CHECK_INTERVAL=30000
+```
+
+## Mock Database Implementation
+
+The Auth Service includes a mock database implementation for development and testing purposes. When `MOCK_DB=true` is set in the environment, the service will use an in-memory database instead of connecting to PostgreSQL.
+
+### Features
+
+- **In-Memory Storage**: Simulates database tables and relationships without requiring a real database
+- **Pre-populated Data**: Includes sample users, tourists, incidents, and alerts for testing
+- **Query Simulation**: Handles common database operations like inserts, selects, and updates
+- **Health Check Responses**: Provides realistic responses to database health checks
+
+### Usage
+
+To enable the mock database:
+
+1. Set `MOCK_DB=true` in your `.env` file or environment variables
+2. Start the service normally with `node index.js`
+
+### Testing
+
+A test script is provided to verify functionality with the mock database:
+
+```bash
+# Set environment variable for mock database
+$env:MOCK_DB="true"  # PowerShell
+# OR
+export MOCK_DB=true   # Bash
+
+# Run tests
+node test-auth.js
+```
+
+For detailed information about the mock data structure, see `MOCK_DATA_STRUCTURE.md`.
 DB_UNHEALTHY_THRESHOLD=3
 ```
 

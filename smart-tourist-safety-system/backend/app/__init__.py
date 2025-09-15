@@ -5,14 +5,10 @@ from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from app.config import Config
-import os
 
 db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
-
-# Set environment variables for services
-os.environ['AUTH_SERVICE_URL'] = os.environ.get('AUTH_SERVICE_URL', 'http://auth-service:3001')
 
 def create_app(config_class=Config):
     app = Flask(__name__)

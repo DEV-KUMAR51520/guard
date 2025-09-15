@@ -92,7 +92,7 @@ router.post('/resolve-incident', auth, async (req, res) => {
       return res.status(400).json({ message: 'Tourist has no blockchain ID.' });
     }
     // Call the Blockchain microservice to resolve the incident on-chain
-    await axios.post(`${BLOCKCHAIN_SERVICE_URL}/api/blockchain/resolve-incident`, {
+    await axios.post('http://localhost:5002/api/blockchain/resolve-incident', {
       touristId: blockchainId,
     });
     // Update the tourist's status in the database

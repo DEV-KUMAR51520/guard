@@ -120,7 +120,7 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <DashboardCard title="Total Tourists" value={stats.totalTourists} icon={<Globe className="h-6 w-6" />} />
               <DashboardCard title="Active Incidents" value={stats.activeIncidents} icon={<AlertTriangle className="h-6 w-6 text-red-500" />} className="bg-red-50 dark:bg-red-950" />
-              <DashboardCard title="Incidents Resolved" value={stats.incidentsResolvedToday} icon={<UserCheckIcon className="h-6 w-6 text-green-500" />} className="bg-green-50 dark:bg-green-950" />
+              <DashboardCard title="Incidents Resolved" value={stats.incidentsResolvedToday} icon={<UserCheck className="h-6 w-6 text-green-500" />} className="bg-green-50 dark:bg-green-950" />
             </div>
 
             <div className="relative rounded-xl overflow-hidden shadow-xl border border-gray-200 dark:border-gray-800">

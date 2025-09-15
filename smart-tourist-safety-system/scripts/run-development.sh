@@ -2,11 +2,11 @@
 
 echo "🚀 Starting Smart Tourist Safety System - Development Mode"
 
-# Start databases
+# Start databases with Docker
 echo "📊 Starting databases..."
 docker-compose -f docker-compose.dev.yml up -d postgres redis
 
-# Wait for databases
+# Wait for databases to be ready
 echo "⏳ Waiting for databases to be ready..."
 sleep 10
 
@@ -14,7 +14,7 @@ sleep 10
 echo "🖥️ Starting backend service..."
 cd backend
 python -m venv venv
-source venv/bin/activate
+source venv/Scripts/activate
 pip install -r requirements.txt
 export FLASK_ENV=development
 export DATABASE_URL=postgresql://admin:devpassword123@localhost:5432/tourist_safety_dev
@@ -23,26 +23,35 @@ flask run &
 BACKEND_PID=$!
 cd ..
 
-# Start AI service  
+# Start AI service
 echo "🤖 Starting AI service..."
-cd ai-service
+cd microservices/ai-service
 python -m venv venv
-source venv/bin/activate
+source venv/Scripts/activate
 pip install -r requirements.txt
 python app.py &
 AI_PID=$!
-cd ..
+cd ../..
 
-# Start dashboard
-echo "📱 Starting dashboard..."
-cd dashboard
+# Start admin dashboard
+echo "📱 Starting admin dashboard..."
+cd frontend/dashboard
+npm install
+npm run dev -- --port 3000 &
+DASHBOARD_PID=$!
+cd ../..
+
+# Start user dashboard
+echo "👤 Starting user dashboard..."
+cd frontend/user-dashboard
 npm install
 npm start &
-DASHBOARD_PID=$!
-cd ..
+USER_DASHBOARD_PID=$!
+cd ../..
 
 echo "✅ All services started!"
-echo "📊 Dashboard: http://localhost:3000"
+echo "📊 Admin Dashboard: http://localhost:3000"
+echo "👤 User Dashboard: http://localhost:3001"
 echo "🔌 Backend API: http://localhost:5000/api"
 echo "🤖 AI Service: http://localhost:5001"
 echo ""
@@ -51,11 +60,11 @@ echo "   cd mobile && npm install && npx react-native run-android"
 echo ""
 echo "🛑 To stop all services: ./scripts/stop-development.sh"
 
-# Create stop script
+# Create stop script with new PIDs
 cat > scripts/stop-development.sh << 'STOP_EOF'
 #!/bin/bash
 echo "🛑 Stopping all services..."
-kill $BACKEND_PID $AI_PID $DASHBOARD_PID 2>/dev/null
+kill $BACKEND_PID $AI_PID $DASHBOARD_PID $USER_DASHBOARD_PID 2>/dev/null
 docker-compose -f docker-compose.dev.yml down
 echo "✅ All services stopped"
 STOP_EOF

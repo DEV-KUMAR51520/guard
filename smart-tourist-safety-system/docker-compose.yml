@@ -28,6 +28,31 @@ services:
     networks:
       - tourist_safety_network
     restart: unless-stopped
+    
+  # Centralized Authentication Service
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: tourist_safety_auth
+    environment:
+      - PORT=3001
+      - NODE_ENV=production
+      - JWT_SECRET=${JWT_SECRET}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=admin
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=tourist_safety
+      - BLOCKCHAIN_API_URL=http://blockchain:5002
+      - AI_SERVICE_URL=http://ai-service:5000
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+    networks:
+      - tourist_safety_network
+    restart: unless-stopped
 
   # Backend Services
   flask_backend:

@@ -1,0 +1,98 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20250912161613
+Username: DESKTOP-7JE02N7\Dev Kumar
+RunAs User: DESKTOP-7JE02N7\Dev Kumar
+Configuration Name: 
+Machine: DESKTOP-7JE02N7 (Microsoft Windows NT 10.0.26100.0)
+Host Application: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoExit -File scripts\monitor-services.ps1
+Process ID: 16040
+PSVersion: 5.1.26100.6584
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.6584
+BuildVersion: 10.0.26100.6584
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Transcript started, output file is ..\logs\monitoring_20250912_161613.log
+[INFO] Starting service monitoring...
+[INFO] Press Ctrl+C to stop monitoring
+[INFO] Log file: ..\logs\monitoring_20250912_161613.log
+[INFO] \n--- Service Health Check: 09/12/2025 16:16:13 ---
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+[SUCCESS] All services are operational
+[INFO] \n--- Service Health Check: 09/12/2025 16:16:51 ---
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+[SUCCESS] All services are operational
+[INFO] \n--- Service Health Check: 09/12/2025 16:17:30 ---
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+[SUCCESS] All services are operational
+[INFO] \n--- Service Health Check: 09/12/2025 16:18:08 ---
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+[SUCCESS] All services are operational
+[INFO] \n--- Service Health Check: 09/12/2025 16:18:46 ---
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+[SUCCESS] All services are operational
+[INFO] \n--- Service Health Check: 09/12/2025 16:19:25 ---
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+[SUCCESS] All services are operational
+[INFO] \n--- Service Health Check: 09/12/2025 16:20:03 ---
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+[SUCCESS] All services are operational
+[INFO] \n--- Service Health Check: 09/12/2025 16:20:41 ---
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+[SUCCESS] All services are operational
+[INFO] \n--- Service Health Check: 09/12/2025 16:21:20 ---
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+[SUCCESS] All services are operational
+[INFO] \n--- Service Health Check: 09/12/2025 16:21:58 ---
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+[SUCCESS] All services are operational
+[INFO] \n--- Service Health Check: 09/12/2025 16:22:36 ---
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+[SUCCESS] All services are operational
+[INFO] \n--- Service Health Check: 09/12/2025 16:23:15 ---
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+[SUCCESS] All services are operational
+[INFO] \n--- Service Health Check: 09/12/2025 16:23:53 ---
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+[SUCCESS] All services are operational
+[INFO] \n--- Service Health Check: 09/12/2025 16:24:31 ---
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+[SUCCESS] All services are operational
+[INFO] \n--- Service Health Check: 09/12/2025 16:25:10 ---
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+[SUCCESS] All services are operational
+[INFO] \n--- Service Health Check: 09/12/2025 16:25:48 ---
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+[SUCCESS] All services are operational
+[INFO] \n--- Service Health Check: 09/12/2025 16:26:26 ---
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+[SUCCESS] All services are operational
+[INFO] \n--- Service Health Check: 09/12/2025 16:27:05 ---
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+[SUCCESS] All services are operational
+[INFO] \n--- Service Health Check: 09/12/2025 16:27:43 ---
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+PS>TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+[SUCCESS] All services are operational

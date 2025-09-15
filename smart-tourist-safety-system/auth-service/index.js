@@ -16,6 +16,7 @@ app.use('/api/auth', require('./routes/auth'));
 // Enhanced health check endpoint with database status
 app.get('/health', (req, res) => {
   const dbStatus = dbHealth.getHealthStatus();
+  console.log('Health check requested. Current DB status:', dbStatus);
   res.json({
     status: dbStatus.isHealthy ? 'UP' : 'DEGRADED',
     database: {
@@ -30,6 +31,14 @@ app.get('/health', (req, res) => {
 const PORT = process.env.PORT || 3001;
 
 // Initialize database before starting the server
+console.log('Starting auth service with DB config:', {
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  database: 'tourist_safety',
+  user: process.env.DB_USER,
+  // Password hidden for security
+});
+
 initializeDatabase()
   .then(() => {
     // Start database health checks

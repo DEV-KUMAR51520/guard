@@ -44,7 +44,7 @@ const RegistrationForm = ({ onSuccess }) => {
     password: Yup.string()
       .min(8, 'Password must be at least 8 characters')
       .matches(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])/,
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/,
         'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
       )
       .required('Password is required'),
@@ -114,26 +114,22 @@ const RegistrationForm = ({ onSuccess }) => {
     setError(null);
     
     try {
-      // Create FormData object for multipart/form-data (for file upload)
+      // Create a FormData object to handle file uploads and other fields
       const formData = new FormData();
-      
-      // Add all form fields to FormData
       formData.append('name', values.name);
       formData.append('email', values.email);
       formData.append('phone', values.phone);
-      formData.append('password', values.password); // Send plain password, server will hash it
-      
-      // Add optional fields if they exist
-      if (values.emergency_contact) formData.append('emergency_contact', values.emergency_contact);
-      if (values.entry_point) formData.append('entry_point', values.entry_point);
-      if (values.trip_duration) formData.append('trip_duration', values.trip_duration);
-      
-      // Add profile picture if selected
+      formData.append('password', values.password);
+      formData.append('emergency_contact', values.emergency_contact || JSON.stringify({ name: 'Emergency Contact', phone: values.phone }));
+      formData.append('entry_point', values.entry_point || 'Default Entry');
+      formData.append('trip_duration', values.trip_duration || '7');
       if (values.profilePicture) {
-        formData.append('profile_picture', values.profilePicture);
+        formData.append('profilePicture', values.profilePicture);
       }
       
-      // Send the form data to the server
+      console.log('Sending FormData:', Object.fromEntries(formData.entries())); // Debug log
+      
+      // Send the FormData object to the server
       await register(formData);
       setStatus({ success: true });
       if (onSuccess) onSuccess();
@@ -450,7 +446,7 @@ const RegistrationForm = ({ onSuccess }) => {
               aria-describedby="terms-error"
             />
             <label htmlFor="terms" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-              I agree to the <a href="#" className="text-blue-600 hover:underline dark:text-blue-400">Terms and Conditions</a> <span className="text-red-500">*</span>
+              I agree to the <a href="/terms" className="text-blue-600 hover:underline dark:text-blue-400">Terms and Conditions</a> <span className="text-red-500">*</span>
             </label>
           </div>
           <ErrorMessage

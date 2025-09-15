@@ -1,4 +1,3 @@
-# api/ai_service_api.py
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import joblib
@@ -8,11 +7,10 @@ from datetime import datetime
 import logging
 import os
 
-# Import our ML models
-import sys
-sys.path.append('../training')
-from anomaly_detection import TouristAnomalyDetector
-from risk_assessment import TouristRiskAssessment
+# Set a more reliable path for modules
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from training.anomaly_detection import TouristAnomalyDetector
+from training.risk_assessment import TouristRiskAssessment
 
 app = Flask(__name__)
 CORS(app)
@@ -32,12 +30,12 @@ def load_models():
     try:
         # Load anomaly detection model
         anomaly_detector = TouristAnomalyDetector()
-        anomaly_detector.load_model('../models/tourist_anomaly_detector.pkl')
+        anomaly_detector.load_model('training/models/anomaly_model.joblib')
         logger.info("Anomaly detection model loaded successfully")
 
         # Load risk assessment model
         risk_assessor = TouristRiskAssessment()
-        risk_assessor.load_model('../models/tourist_risk_assessment.pkl')
+        risk_assessor.load_model('training/models/risk_model.joblib')
         logger.info("Risk assessment model loaded successfully")
 
     except Exception as e:
@@ -135,6 +133,7 @@ def calculate_safety_score():
             'days_since_entry': data.get('days_since_entry', 1)
         }
 
+        # Predict anomaly
         anomaly_result = anomaly_detector.predict(anomaly_data)
 
         # Get risk assessment

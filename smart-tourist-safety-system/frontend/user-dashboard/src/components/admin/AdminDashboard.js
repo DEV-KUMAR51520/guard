@@ -47,7 +47,7 @@ const AdminDashboard = () => {
     }, 30000);
 
     return () => clearInterval(intervalId);
-  }, [isAdmin, navigate]);}]}
+  }, [isAdmin, navigate]);
 
   const fetchUsers = async () => {
     setIsLoading(true);

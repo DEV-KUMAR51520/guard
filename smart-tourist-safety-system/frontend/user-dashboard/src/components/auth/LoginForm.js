@@ -7,7 +7,6 @@ import { motion } from 'framer-motion';
 const LoginForm = () => {
   const { login, error, setError } = useContext(AuthContext);
   const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Get CSRF token from meta tag
   const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
@@ -26,17 +25,16 @@ const LoginForm = () => {
   });
 
   const handleSubmit = async (values, { setSubmitting, setStatus }) => {
-    setIsSubmitting(true);
     setError(null);
     
     try {
-      await login(values);
+      // Extract phone and password from values and pass directly to login function
+      await login(values.phone, values.password);
       setStatus({ success: true });
     } catch (err) {
       setStatus({ success: false });
     } finally {
       setSubmitting(false);
-      setIsSubmitting(false);
     }
   };
 

@@ -84,7 +84,8 @@ export const AuthProvider = ({ children }) => {
           ? err.response.data.message
           : 'Registration failed. Please try again.'
       );
-      return { error: error };
+      // Propagate the error for the component to handle
+      throw err; 
     } finally {
       setLoading(false);
     }

@@ -139,7 +139,7 @@ router.post('/panic', auth, async (req, res) => {
     }
     
     // Call the Blockchain microservice to record an immutable incident
-    const blockchainResponse = await axios.post(`${BLOCKCHAIN_SERVICE_URL}/api/blockchain/incident`, {
+    const blockchainResponse = await axios.post('http://localhost:5002/api/blockchain/incident', {
       touristId: blockchainId,
     });
     

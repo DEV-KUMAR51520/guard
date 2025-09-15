@@ -1,6 +1,6 @@
 var R=require("./build/chunks/[turbopack]_runtime.js")("postcss.js")
-R.c("build/chunks/[turbopack-node]_transforms_postcss_ts_29cbe857._.js")
-R.c("build/chunks/[root-of-the-server]__488c46d4._.js")
+R.c("build/chunks/[turbopack-node]_transforms_postcss_ts_0cce1cc6._.js")
+R.c("build/chunks/[root-of-the-server]__64e78f0c._.js")
 R.m("[turbopack-node]/globals.ts [postcss] (ecmascript)")
-R.m("[turbopack-node]/ipc/evaluate.ts/evaluate.js { INNER => \"[turbopack-node]/transforms/postcss.ts { CONFIG => \\\"[project]/frontend/dashboard/postcss.config.mjs [postcss] (ecmascript)\\\" } [postcss] (ecmascript)\", RUNTIME => \"[turbopack-node]/ipc/evaluate.ts [postcss] (ecmascript)\" } [postcss] (ecmascript)")
-module.exports=R.m("[turbopack-node]/ipc/evaluate.ts/evaluate.js { INNER => \"[turbopack-node]/transforms/postcss.ts { CONFIG => \\\"[project]/frontend/dashboard/postcss.config.mjs [postcss] (ecmascript)\\\" } [postcss] (ecmascript)\", RUNTIME => \"[turbopack-node]/ipc/evaluate.ts [postcss] (ecmascript)\" } [postcss] (ecmascript)").exports
+R.m("[turbopack-node]/ipc/evaluate.ts/evaluate.js { INNER => \"[turbopack-node]/transforms/postcss.ts { CONFIG => \\\"[project]/smart-tourist-safety-system/frontend/dashboard/postcss.config.mjs [postcss] (ecmascript)\\\" } [postcss] (ecmascript)\", RUNTIME => \"[turbopack-node]/ipc/evaluate.ts [postcss] (ecmascript)\" } [postcss] (ecmascript)")
+module.exports=R.m("[turbopack-node]/ipc/evaluate.ts/evaluate.js { INNER => \"[turbopack-node]/transforms/postcss.ts { CONFIG => \\\"[project]/smart-tourist-safety-system/frontend/dashboard/postcss.config.mjs [postcss] (ecmascript)\\\" } [postcss] (ecmascript)\", RUNTIME => \"[turbopack-node]/ipc/evaluate.ts [postcss] (ecmascript)\" } [postcss] (ecmascript)").exports
