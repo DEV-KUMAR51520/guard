@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useRef, Suspense, useMemo } from "react"
+import Link from "next/link" // CORRECTED: Import the Link component
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
@@ -161,14 +162,18 @@ export default function SmartTouristSafetyPage() {
               </a>
             </div>
             <div className="hidden md:flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="hover:cursor-pointer text-muted-foreground hover:text-foreground hover:bg-background/50 transition-all duration-300 shadow-sm"
-              >
-                Sign In
-              </Button>
-              <a href="http://dashboard.trailshield.app" target="_blank" rel="noopener noreferrer">
+              {/* CORRECTED: "Sign In" button now navigates using Link */}
+              <Link href="/auth" passHref>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="hover:cursor-pointer text-muted-foreground hover:text-foreground hover:bg-background/50 transition-all duration-300 shadow-sm"
+                >
+                  Sign In
+                </Button>
+              </Link>
+              {/* This button correctly links to an external admin dashboard */}
+              <a href="http://localhost:3002" target="_blank" rel="noopener noreferrer">
                 <Button size="sm" className="hover:cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all duration-300">
                   <ExternalLink className="w-4 h-4 mr-2" />
                   Dashboard
@@ -234,15 +239,16 @@ export default function SmartTouristSafetyPage() {
             Your safety, amplified by AI, secured by Blockchain.
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12 animate-fade-in-up animation-delay-600">
-            <a href="http://dashboard.trailshield.app" target="_blank" rel="noopener noreferrer">
+            {/* CORRECTED: "Get Started" button now uses Link for proper navigation */}
+            <Link href="/auth" passHref>
               <Button
                 size="lg"
                 className="hover:cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground w-72 py-7 text-xl font-bold rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl shadow-lg border-0"
               >
                 <ExternalLink className="w-6 h-6 mr-3" />
-                Access Dashboard
+                Get Started
               </Button>
-            </a>
+            </Link>
             <Button
               onClick={scrollToFeatures}
               variant="outline"

@@ -1,0 +1,19 @@
+{
+  "pages": {
+    "/_not-found/page": [
+      "static/chunks/[root-of-the-server]__42e76e66._.css",
+      "static/chunks/aeafc_c83b6755._.js",
+      "static/chunks/smart-tourist-safety-system_frontend_landing_bd3bd9e6._.js",
+      "static/chunks/smart-tourist-safety-system_frontend_landing_app_layout_179f9a43.js",
+      "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_d5cec708._.js",
+      "static/chunks/aeafc_next_dist_compiled_react-dom_59bed508._.js",
+      "static/chunks/aeafc_next_dist_compiled_next-devtools_index_1f339c51.js",
+      "static/chunks/aeafc_next_dist_compiled_2a8dbe74._.js",
+      "static/chunks/aeafc_next_dist_client_fc842e01._.js",
+      "static/chunks/aeafc_next_dist_0760f686._.js",
+      "static/chunks/aeafc_@swc_helpers_cjs_69af1709._.js",
+      "static/chunks/smart-tourist-safety-system_frontend_landing_a0ff3932._.js",
+      "static/chunks/turbopack-smart-tourist-safety-system_frontend_landing_49f999a0._.js"
+    ]
+  }
+}

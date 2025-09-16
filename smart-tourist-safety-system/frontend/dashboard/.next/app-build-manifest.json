@@ -1,23 +1,3 @@
 {
-  "pages": {
-    "/page": [
-      "static/chunks/[root-of-the-server]__2939fd91._.css",
-      "static/chunks/bef5f_next_dist_e354a812._.js",
-      "static/chunks/smart-tourist-safety-system_frontend_dashboard_app_layout_802aef8c.js",
-      "static/chunks/bef5f_next_dist_client_components_builtin_global-error_aeae8efd.js",
-      "static/chunks/bef5f_f21bf0bd._.js",
-      "static/chunks/smart-tourist-safety-system_frontend_dashboard_5201103f._.js",
-      "static/chunks/bef5f_48e94c7c._.css",
-      "static/chunks/smart-tourist-safety-system_frontend_dashboard_app_page_aeae8efd.js",
-      "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_2319afe0._.js",
-      "static/chunks/bef5f_next_dist_compiled_react-dom_d017f0ba._.js",
-      "static/chunks/bef5f_next_dist_compiled_next-devtools_index_58105c11.js",
-      "static/chunks/bef5f_next_dist_compiled_c966b2fa._.js",
-      "static/chunks/bef5f_next_dist_client_f9d6dca5._.js",
-      "static/chunks/bef5f_next_dist_12580f04._.js",
-      "static/chunks/bef5f_@swc_helpers_cjs_77d72748._.js",
-      "static/chunks/smart-tourist-safety-system_frontend_dashboard_a0ff3932._.js",
-      "static/chunks/turbopack-smart-tourist-safety-system_frontend_dashboard_72a3797e._.js"
-    ]
-  }
+  "pages": {}
 }
