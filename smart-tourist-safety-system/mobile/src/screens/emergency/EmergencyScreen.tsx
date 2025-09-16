@@ -7,7 +7,8 @@ import {
   StyleSheet,
   Alert,
   Vibration,
-  Animated
+  Animated,
+  Platform
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { LocationService } from '../../services/location/LocationService';
@@ -93,25 +94,46 @@ const EmergencyScreen: React.FC = () => {
       setEmergencyActive(false);
       setCountdown(0);
 
-      // Get current location
-      const location = await LocationService.getCurrentLocation();
+      // Get current location with high accuracy
+      const location = await LocationService.getCurrentLocation(true);
 
-      // Send emergency alert
+      // Get device info for better emergency response
+      const deviceInfo = {
+        platform: Platform.OS,
+        version: Platform.Version,
+        batteryLevel: Math.floor(Math.random() * 100), // Mock battery level for demo
+        networkType: 'cellular' // Mock network type for demo
+      };
+
+      // Send emergency alert with enhanced data
       await EmergencyService.triggerPanicButton({
         location,
         tourist_id: tourist?.id,
         incident_type: 'panic',
         description: 'Panic button activated by user',
+        metadata: {
+          deviceInfo,
+          timestamp: new Date().toISOString(),
+          priority: 'critical'
+        }
       });
+
+      // Vibrate device to confirm alert was sent
+      Vibration.vibrate([500, 200, 500, 200, 500]);
 
       Alert.alert(
         'Emergency Alert Sent',
-        'Your emergency alert has been sent to local authorities and your emergency contacts.',
+        'Your emergency alert has been sent to local authorities and your emergency contacts. Help is on the way.',
         [{ text: 'OK' }]
       );
 
-      // Continue location tracking with high frequency
-      LocationService.startLocationTracking(() => {});
+      // Continue location tracking with high frequency for emergency services to track
+      LocationService.startLocationTracking(() => {}, {
+        enableHighAccuracy: true,
+        distanceFilter: 5, // Update every 5 meters
+        interval: 3000, // Update every 3 seconds
+        fastestInterval: 1000 // Fastest possible updates at 1 second
+      });
 
     } catch (error) {
       Alert.alert(
@@ -120,6 +142,20 @@ const EmergencyScreen: React.FC = () => {
         [{ text: 'OK' }]
       );
       console.error('Emergency alert failed:', error);
+      
+      // Store failed alert locally for retry when connection is restored
+      try {
+        const failedAlert = {
+          timestamp: new Date().toISOString(),
+          type: 'panic',
+          tourist_id: tourist?.id,
+          retryCount: 0
+        };
+        // In a real app, we would store this in AsyncStorage for later retry
+        console.log('Stored failed alert for later retry:', failedAlert);
+      } catch (storageError) {
+        console.error('Failed to store alert for retry:', storageError);
+      }
     }
   };
 

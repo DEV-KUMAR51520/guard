@@ -6,6 +6,21 @@ import pandas as pd
 from datetime import datetime
 import logging
 import os
+import sys  # CORRECTED: Added the missing import for the 'sys' module
+
+# --- Configuration for Safety Score Calculation ---
+# IMPROVEMENT: Moved hardcoded values to a config dictionary for easier management
+SAFETY_SCORE_CONFIG = {
+    'base_score': 100,
+    'anomaly_penalty_multiplier': 30,
+    'risk_penalties': {'low': 0, 'medium': 15, 'high': 35, 'critical': 60},
+    'low_battery_threshold': 20,
+    'low_battery_penalty': 10,
+    'poor_gps_threshold_m': 50,
+    'poor_gps_penalty': 5,
+    'risk_zone_threshold_km': 1,
+    'risk_zone_penalty': 15
+}
 
 # Set a more reliable path for modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -132,8 +147,6 @@ def calculate_safety_score():
             'risk_zone_distance_km': data.get('risk_zone_distance_km', 5),
             'days_since_entry': data.get('days_since_entry', 1)
         }
-
-        # Predict anomaly
         anomaly_result = anomaly_detector.predict(anomaly_data)
 
         # Get risk assessment
@@ -150,29 +163,24 @@ def calculate_safety_score():
             'temperature': data.get('temperature', 25),
             'humidity': data.get('humidity', 70)
         }
-
         risk_result = risk_assessor.predict_risk(risk_data)
 
-        # Calculate composite safety score (0-100)
-        base_score = 100
+        # Calculate composite safety score (0-100) using the config
+        base_score = SAFETY_SCORE_CONFIG['base_score']
 
-        # Deduct for anomalous behavior
         if anomaly_result['is_anomaly']:
-            base_score -= 30 * anomaly_result['confidence']
+            base_score -= SAFETY_SCORE_CONFIG['anomaly_penalty_multiplier'] * anomaly_result['confidence']
 
-        # Deduct for risk level
-        risk_penalties = {'low': 0, 'medium': 15, 'high': 35, 'critical': 60}
-        base_score -= risk_penalties.get(risk_result['risk_level'], 0)
+        base_score -= SAFETY_SCORE_CONFIG['risk_penalties'].get(risk_result['risk_level'], 0)
 
-        # Additional factors
-        if data.get('battery_level', 100) < 20:
-            base_score -= 10
+        if data.get('battery_level', 100) < SAFETY_SCORE_CONFIG['low_battery_threshold']:
+            base_score -= SAFETY_SCORE_CONFIG['low_battery_penalty']
 
-        if data.get('gps_accuracy_m', 10) > 50:
-            base_score -= 5
+        if data.get('gps_accuracy_m', 10) > SAFETY_SCORE_CONFIG['poor_gps_threshold_m']:
+            base_score -= SAFETY_SCORE_CONFIG['poor_gps_penalty']
 
-        if data.get('risk_zone_distance_km', 5) < 1:
-            base_score -= 15
+        if data.get('risk_zone_distance_km', 5) < SAFETY_SCORE_CONFIG['risk_zone_threshold_km']:
+            base_score -= SAFETY_SCORE_CONFIG['risk_zone_penalty']
 
         safety_score = max(0, min(100, base_score))
 
@@ -186,13 +194,12 @@ def calculate_safety_score():
                 'behavior_anomaly': anomaly_result['is_anomaly'],
                 'environmental_risk': risk_result['risk_level'],
                 'technical_issues': {
-                    'low_battery': data.get('battery_level', 100) < 20,
-                    'poor_gps': data.get('gps_accuracy_m', 10) > 50,
-                    'near_risk_zone': data.get('risk_zone_distance_km', 5) < 1
+                    'low_battery': data.get('battery_level', 100) < SAFETY_SCORE_CONFIG['low_battery_threshold'],
+                    'poor_gps': data.get('gps_accuracy_m', 10) > SAFETY_SCORE_CONFIG['poor_gps_threshold_m'],
+                    'near_risk_zone': data.get('risk_zone_distance_km', 5) < SAFETY_SCORE_CONFIG['risk_zone_threshold_km']
                 }
             }
         }
-
         return jsonify(result)
 
     except Exception as e:
@@ -205,23 +212,16 @@ def interpret_anomaly_result(result, data):
         return "Normal tourist behavior detected. No concerns identified."
 
     interpretations = []
-
-    # Check specific anomaly indicators
     if data.get('speed_kmh', 0) < 0.5:
         interpretations.append("Prolonged stationary behavior detected - tourist may be stuck or resting")
-
     if data.get('speed_kmh', 0) > 15:
         interpretations.append("Unusually fast movement detected - possible vehicle use or emergency situation")
-
     if data.get('battery_level', 100) < 10:
         interpretations.append("Critical battery level - risk of losing communication")
-
     if data.get('gps_accuracy_m', 10) > 100:
         interpretations.append("Poor GPS signal - location accuracy compromised")
-
     if data.get('hour', 12) < 6 or data.get('hour', 12) > 22:
         interpretations.append("Activity during unusual hours - potential safety concern")
-
     if not interpretations:
         interpretations.append("Anomalous pattern detected - recommend closer monitoring")
 
@@ -230,31 +230,23 @@ def interpret_anomaly_result(result, data):
 def generate_risk_recommendations(risk_result, conditions):
     """Generate safety recommendations based on risk assessment"""
     recommendations = []
-
     risk_level = risk_result['risk_level']
 
     if risk_level in ['high', 'critical']:
         recommendations.append("Consider postponing travel or seeking professional guidance")
         recommendations.append("Ensure emergency communication devices are available")
-
     if conditions.get('weather_risk') in ['storm', 'fog']:
         recommendations.append("Monitor weather conditions closely and seek shelter if necessary")
-
     if conditions.get('terrain_type') in ['mountain', 'forest']:
         recommendations.append("Travel with experienced guide and proper equipment")
-
     if conditions.get('time_of_day') == 'night':
         recommendations.append("Avoid nighttime travel in unfamiliar areas")
-
     if conditions.get('group_size') == 1:
         recommendations.append("Consider traveling with a group for added safety")
-
     if not conditions.get('has_guide'):
         recommendations.append("Consider hiring a local guide familiar with the area")
-
     if not conditions.get('emergency_equipment'):
         recommendations.append("Carry emergency equipment including first aid kit and communication devices")
-
     if not recommendations:
         recommendations.append("Follow standard safety precautions and stay alert")
 

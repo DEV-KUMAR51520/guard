@@ -51,7 +51,7 @@ try {
     if (-not (Test-Path ".env")) {
         Write-InfoMessage "Creating .env file for User Dashboard..."
         @"
-REACT_APP_API_URL=http://localhost:3000
+REACT_APP_API_URL=http://localhost:5000
 REACT_APP_ENV=development
 "@ | Out-File -FilePath ".env" -Encoding utf8
         Write-SuccessMessage ".env file created successfully"

@@ -10,7 +10,7 @@
 const axios = require('axios');
 
 // Auth service URL
-const AUTH_SERVICE_URL = 'http://localhost:3006';
+const AUTH_SERVICE_URL = 'http://localhost:3005';
 
 // Test user credentials for email login
 const TEST_USER = {

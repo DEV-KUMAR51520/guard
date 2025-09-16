@@ -54,6 +54,21 @@ services:
       - tourist_safety_network
     restart: unless-stopped
 
+  # Blockchain Service
+  blockchain:
+    build:
+      context: ./microservices/blockchain
+      dockerfile: Dockerfile
+    container_name: tourist_safety_blockchain
+    environment:
+      - PORT=5002
+      - NODE_ENV=production
+    ports:
+      - "5002:5002"
+    networks:
+      - tourist_safety_network
+    restart: unless-stopped
+
   # Backend Services
   flask_backend:
     build:
@@ -64,7 +79,8 @@ services:
       - DATABASE_URL=postgresql://admin:${DB_PASSWORD}@postgres:5432/tourist_safety
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - JWT_SECRET_KEY=${JWT_SECRET}
-      - FLASK_ENV=development
+      - FLASK_ENV=production
+      - MOCK_DB=false
     ports:
       - "5000:5000"
     depends_on:

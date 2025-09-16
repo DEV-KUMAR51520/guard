@@ -1,72 +1,54 @@
 #!/bin/bash
 
 echo "🚀 Starting Smart Tourist Safety System - Development Mode"
+set -e
 
-# Start databases with Docker
-echo "📊 Starting databases..."
+# Start Databases
 docker-compose -f docker-compose.dev.yml up -d postgres redis
-
-# Wait for databases to be ready
-echo "⏳ Waiting for databases to be ready..."
+echo "⏳ Waiting for databases..."
 sleep 10
 
-# Start backend
-echo "🖥️ Starting backend service..."
-cd backend
-python -m venv venv
-source venv/Scripts/activate
-pip install -r requirements.txt
-export FLASK_ENV=development
-export DATABASE_URL=postgresql://admin:devpassword123@localhost:5432/tourist_safety_dev
-export REDIS_URL=redis://:devpassword123@localhost:6379/0
-flask run &
+# Start Python Backend Service
+echo "🐍 Starting Python backend on port 5000..."
+(cd backend && source venv/Scripts/activate && flask run --port=5000) &
 BACKEND_PID=$!
-cd ..
 
-# Start AI service
-echo "🤖 Starting AI service..."
-cd microservices/ai-service
-python -m venv venv
-source venv/Scripts/activate
-pip install -r requirements.txt
-python app.py &
-AI_PID=$!
-cd ../..
+# Start Node.js Auth Service
+echo "🔐 Starting Node.js auth service on port 5002..."
+(cd auth-service && npm install && npm start) &
+AUTH_SERVICE_PID=$!
 
-# Start admin dashboard
-echo "📱 Starting admin dashboard..."
-cd frontend/dashboard
-npm install
-npm run dev -- --port 3000 &
-DASHBOARD_PID=$!
-cd ../..
+# Start API Gateway
+echo "GATEWAY: Starting API Gateway on port 8000..."
+(cd api-gateway && npm install && npm start) &
+GATEWAY_PID=$!
 
-# Start user dashboard
-echo "👤 Starting user dashboard..."
-cd frontend/user-dashboard
-npm install
-npm start &
-USER_DASHBOARD_PID=$!
-cd ../..
+# Start Main User Frontend
+echo "🌐 Starting user application on port 3000..."
+(cd frontend/landing && npm install && npm run dev -- --port 3000) &
+MAIN_APP_PID=$!
 
-echo "✅ All services started!"
-echo "📊 Admin Dashboard: http://localhost:3000"
-echo "👤 User Dashboard: http://localhost:3001"
-echo "🔌 Backend API: http://localhost:5000/api"
-echo "🤖 AI Service: http://localhost:5001"
+# Start Admin Dashboard Frontend
+echo "📊 Starting admin dashboard on port 3002..."
+(cd frontend/dashboard && npm install && npm run dev -- --port 3002) &
+ADMIN_DASHBOARD_PID=$!
+
+sleep 8
 echo ""
-echo "📱 To start mobile app:"
-echo "   cd mobile && npm install && npx react-native run-android"
-echo ""
-echo "🛑 To stop all services: ./scripts/stop-development.sh"
+echo "✅ All services are up and running!"
+echo "----------------------------------------"
+echo "➡️  User App: http://localhost:3000"
+echo "➡️  Admin App:  http://localhost:3002"
+echo "➡️  API Gateway: http://localhost:8000"
+echo "----------------------------------------"
+echo "🛑 To stop all services, run: ./scripts/stop-development.sh"
 
-# Create stop script with new PIDs
-cat > scripts/stop-development.sh << 'STOP_EOF'
+# Create the stop script
+cat > scripts/stop-development.sh << STOP_EOF
 #!/bin/bash
 echo "🛑 Stopping all services..."
-kill $BACKEND_PID $AI_PID $DASHBOARD_PID $USER_DASHBOARD_PID 2>/dev/null
+kill -9 $BACKEND_PID $AUTH_SERVICE_PID $GATEWAY_PID $MAIN_APP_PID $ADMIN_DASHBOARD_PID 2>/dev/null
 docker-compose -f docker-compose.dev.yml down
-echo "✅ All services stopped"
+echo "✅ All services stopped."
 STOP_EOF
-
 chmod +x scripts/stop-development.sh

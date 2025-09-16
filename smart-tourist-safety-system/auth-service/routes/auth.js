@@ -82,15 +82,46 @@ router.post('/register', [
     // If tourist-specific data is provided, also create a tourist record
     if (entry_point || trip_duration) {
       try {
+        // Generate a unique hash for the user's identity (using phone number as it's required)
+        const crypto = require('crypto');
+        const aadhaarHash = crypto.createHash('sha256').update(phone).digest('hex');
+        
+        // Call blockchain service to mint a Digital Tourist ID
+        const axios = require('axios');
+        const blockchainServiceUrl = process.env.BLOCKCHAIN_URL || 'http://blockchain:5002';
+        
+        console.log('Calling blockchain service to mint Digital Tourist ID...');
+        const blockchainResponse = await axios.post(`${blockchainServiceUrl}/api/blockchain/register`, {
+          aadhaarHash: aadhaarHash,
+          userId: user.id,
+          name: name
+        });
+        
+        const blockchainId = blockchainResponse.data.blockchainId;
+        console.log('Digital Tourist ID minted successfully:', blockchainId);
+        
+        // Create tourist record with blockchain_id
         await db.query(
-          'INSERT INTO tourists (name, phone, password_hash, emergency_contact, entry_point, trip_duration) VALUES ($1, $2, $3, $4, $5, $6)',
-          [name, phone || null, hashedPassword, emergency_contact || null, entry_point || null, trip_duration || null]
+          'INSERT INTO tourists (name, phone, password_hash, emergency_contact, entry_point, trip_duration, aadhaar_hash, blockchain_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+          [name, phone || null, hashedPassword, emergency_contact || null, entry_point || null, trip_duration || null, aadhaarHash, blockchainId]
         );
-        console.log('Tourist record created successfully');
+        console.log('Tourist record created successfully with blockchain ID');
       } catch (touristErr) {
-        console.error('Error creating tourist record:', touristErr.message);
+        console.error('Error creating tourist record with blockchain ID:', touristErr.message);
         // Continue with user registration even if tourist record creation fails
       }
+    }
+    
+    // Get tourist blockchain_id if available
+    let touristData = null;
+    try {
+      const touristResult = await db.query('SELECT blockchain_id FROM tourists WHERE phone = $1', [phone]);
+      if (touristResult.rows.length > 0) {
+        touristData = touristResult.rows[0];
+      }
+    } catch (err) {
+      console.error('Error fetching tourist data:', err.message);
+      // Continue with registration even if we can't fetch tourist data
     }
     
     // Create JWT token
@@ -99,7 +130,8 @@ router.post('/register', [
         id: user.id,
         email: user.email,
         phone: user.phone,
-        role: user.role
+        role: user.role,
+        blockchain_id: touristData?.blockchain_id
       }
     };
     
@@ -125,7 +157,7 @@ router.post('/register', [
         
         console.log('Registration successful for user:', user.email || user.phone);
         
-        // Return token and user info
+        // Return token and user info with blockchain_id if available
         res.json({
           token,
           refresh_token: refreshToken,
@@ -134,7 +166,8 @@ router.post('/register', [
             name: user.name,
             email: user.email,
             phone: user.phone,
-            role: user.role
+            role: user.role,
+            blockchain_id: touristData?.blockchain_id
           }
         });
       }

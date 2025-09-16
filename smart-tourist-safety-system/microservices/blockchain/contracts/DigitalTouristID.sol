@@ -1,15 +1,11 @@
-// contracts/DigitalTouristID.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 contract DigitalTouristID is Ownable, ReentrancyGuard {
-    using Counters for Counters.Counter;
-
-    Counters.Counter private _tokenIdCounter;
+    uint256 private _tokenIdCounter;
 
     struct TouristID {
         string touristId;
@@ -43,7 +39,7 @@ contract DigitalTouristID is Ownable, ReentrancyGuard {
         _;
     }
 
-    constructor() {
+    constructor() Ownable(msg.sender) {
         authorizedIssuers[msg.sender] = true;
     }
 
@@ -65,8 +61,8 @@ contract DigitalTouristID is Ownable, ReentrancyGuard {
         require(_aadhaarHash != bytes32(0), "Invalid Aadhaar hash");
         require(touristIdToTokenId[_touristId] == 0, "Tourist ID already exists");
 
-        _tokenIdCounter.increment();
-        uint256 newTokenId = _tokenIdCounter.current();
+        _tokenIdCounter++;
+        uint256 newTokenId = _tokenIdCounter;
 
         TouristID storage newID = touristIDs[newTokenId];
         newID.touristId = _touristId;
@@ -96,7 +92,7 @@ contract DigitalTouristID is Ownable, ReentrancyGuard {
         TravelRecord memory record = TravelRecord({
             timestamp: block.timestamp,
             location: _location,
-            activity: "EMERGENCY",
+            activity: _activity,
             isEmergency: false
         });
 
@@ -161,6 +157,6 @@ contract DigitalTouristID is Ownable, ReentrancyGuard {
     }
 
     function getTotalIDs() external view returns (uint256) {
-        return _tokenIdCounter.current();
+        return _tokenIdCounter;
     }
 }
