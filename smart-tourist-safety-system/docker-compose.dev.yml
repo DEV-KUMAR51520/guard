@@ -3,22 +3,45 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15
+    container_name: tourist_safety_postgres_dev
     environment:
-      POSTGRES_DB: tourist_safety_dev
-      POSTGRES_USER: admin  
+      POSTGRES_DB: tourist_safety
+      POSTGRES_USER: admin
       POSTGRES_PASSWORD: devpassword123
     ports:
       - "5432:5432"
     volumes:
       - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d tourist_safety"]
+      interval: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
+    container_name: tourist_safety_redis_dev
     command: redis-server --requirepass devpassword123
     ports:
       - "6379:6379"
     volumes:
       - redis_dev_data:/data
+
+  auth-service:
+    build: ./auth-service
+    container_name: tourist_safety_auth_dev
+    env_file: ./auth-service/.env
+    ports:
+      - "5002:5002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: admin
+      DB_PASSWORD: devpassword123
+      DB_DATABASE: tourist_safety
+      JWT_SECRET: a_very_secret_key_for_dev
 
 volumes:
   postgres_dev_data:

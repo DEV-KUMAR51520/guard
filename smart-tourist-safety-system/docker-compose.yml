@@ -45,7 +45,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=tourist_safety
       - BLOCKCHAIN_API_URL=http://blockchain:5002
-      - AI_SERVICE_URL=http://ai-service:5000
+      - AI_SERVICE_URL=http://ai_service:5001 # Corrected service name and port
     ports:
       - "3001:3001"
     depends_on:
@@ -94,19 +94,19 @@ services:
 
   ai_service:
     build:
-      context: ./ai-service
+      context: ./microservices/ai-service
       dockerfile: Dockerfile
     container_name: tourist_safety_ai
     environment:
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/1
-      - MODEL_PATH=/app/models
+      - MODEL_PATH=/app/training/models
     ports:
       - "5001:5001"
     depends_on:
       - redis
     volumes:
-      - ./ai-service:/app
-      - ai_models:/app/models
+      # This single mapping correctly includes the models directory
+      - ./microservices/ai-service:/app
     networks:
       - tourist_safety_network
     restart: unless-stopped
@@ -114,7 +114,8 @@ services:
   # Frontend Services
   react_dashboard:
     build:
-      context: ./dashboard
+      # ✅ FIX: Corrected the path to the dashboard folder
+      context: ./frontend/dashboard
       dockerfile: Dockerfile
     container_name: tourist_safety_dashboard
     environment:
@@ -135,4 +136,4 @@ networks:
 volumes:
   postgres_data:
   redis_data:
-  ai_models:
+  # ✅ FIX: Removed unused 'ai_models' volume

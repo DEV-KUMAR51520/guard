@@ -34,7 +34,7 @@ const PORT = process.env.PORT || 3001;
 console.log('Starting auth service with DB config:', {
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
-  database: 'tourist_safety',
+  database: process.env.DB_DATABASE, // ✅ FIX: Was hardcoded, now uses .env variable
   user: process.env.DB_USER,
   // Password hidden for security
 });

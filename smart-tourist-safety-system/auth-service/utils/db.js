@@ -22,4 +22,5 @@ console.log("PostgreSQL pool configured for auth-service.");
 
 module.exports = {
   query: (text, params) => pool.query(text, params),
+  pool: pool // ✅ FIX: Export the pool object for graceful shutdown
 };
