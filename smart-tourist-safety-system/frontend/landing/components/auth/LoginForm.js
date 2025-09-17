@@ -1,15 +1,21 @@
+"use client";
+
 import React, { useState, useContext } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { AuthContext } from '../../contexts/AuthContext';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation'; // ✅ 1. Import the router
 
 const LoginForm = () => {
   const { login, error, setError } = useContext(AuthContext);
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter(); // ✅ 2. Initialize the router
 
   // Get CSRF token from meta tag
-  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+  const csrfToken = typeof document !== 'undefined'
+    ? document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+    : '';
 
   const initialValues = {
     phone: '',
@@ -26,13 +32,13 @@ const LoginForm = () => {
 
   const handleSubmit = async (values, { setSubmitting, setStatus }) => {
     setError(null);
-    
     try {
-      // Extract phone and password from values and pass directly to login function
       await login(values.phone, values.password);
       setStatus({ success: true });
+      router.push('/dashboard'); // ✅ 3. Add redirection on success
     } catch (err) {
       setStatus({ success: false });
+      console.error("Login failed:", err);
     } finally {
       setSubmitting(false);
     }

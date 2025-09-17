@@ -1,45 +1,36 @@
-"use client";
-
-import React, { createContext, useState, useEffect } from 'react';
+'use client';
+import { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 
-// This URL should point to your API Gateway
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 const AUTH_SERVICE_ENDPOINT = `${API_URL}/api/auth`;
 
 export const AuthContext = createContext();
+
+export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [token, setToken] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [token, setToken] = useState(
+    typeof window !== 'undefined' ? localStorage.getItem('token') : null
+  );
 
-  // Safely get the token from localStorage on the client-side
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    if (storedToken) {
-      setToken(storedToken);
-    } else {
-      setLoading(false); // No token, so we're done loading
-    }
-  }, []);
-
-  // This effect automatically handles setting headers and verifying the token
   useEffect(() => {
     const verifyToken = async (tokenToVerify) => {
       try {
         axios.defaults.headers.common['x-auth-token'] = tokenToVerify;
         const res = await axios.get(`${AUTH_SERVICE_ENDPOINT}/verify`);
-        
+
         setIsAuthenticated(true);
-        setUser(res.data.user); // Assumes backend sends { user: {...} }
-        setIsAdmin(res.data.user.isAdmin || false);
+        setUser(res.data.user);
       } catch (err) {
         localStorage.removeItem('token');
         setToken(null);
+        setIsAuthenticated(false);
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -47,9 +38,12 @@ export const AuthProvider = ({ children }) => {
 
     if (token) {
       verifyToken(token);
+    } else {
+      // ✅ FIX: If there is no token, we are done loading.
+      setLoading(false);
     }
   }, [token]);
-  
+
   const login = async (phone, password) => {
     setLoading(true);
     setError(null);
@@ -57,15 +51,18 @@ export const AuthProvider = ({ children }) => {
       const res = await axios.post(`${AUTH_SERVICE_ENDPOINT}/login`, { phone, password });
       if (res.data.token) {
         localStorage.setItem('token', res.data.token);
-        setToken(res.data.token); // This will trigger the useEffect to verify
+        setToken(res.data.token);
+        setIsAuthenticated(true);
+        setUser(res.data.user);
       }
       return res.data;
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
+      setLoading(false);
       throw err;
     }
   };
-  
+
   const register = async (userData) => {
     setLoading(true);
     setError(null);
@@ -74,13 +71,15 @@ export const AuthProvider = ({ children }) => {
       if (res.data.token) {
         localStorage.setItem('token', res.data.token);
         setToken(res.data.token);
+        setIsAuthenticated(true);
+        setUser(res.data.user);
       }
       return res.data;
     } catch (err) {
-        setError(err.response?.data?.message || 'Registration failed');
-        throw err;
+      setError(err.response?.data?.message || 'Registration failed');
+      throw err;
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -89,12 +88,11 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     setUser(null);
     setIsAuthenticated(false);
-    setIsAdmin(false);
     delete axios.defaults.headers.common['x-auth-token'];
   };
 
   return (
-    <AuthContext.Provider value={{ token, isAuthenticated, user, loading, error, isAdmin, register, login, logout, setError }}>
+    <AuthContext.Provider value={{ token, isAuthenticated, user, loading, error, register, login, logout, setError }}>
       {children}
     </AuthContext.Provider>
   );

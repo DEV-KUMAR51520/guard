@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react'; // Import useEffect
 import { usePathname, useRouter } from 'next/navigation';
 import { AuthContext } from '../contexts/AuthContext';
 
@@ -9,7 +9,27 @@ export default function ClientAuthProvider({ children }) {
   const pathname = usePathname();
   const router = useRouter();
 
-  // 1. While loading, show a loading screen to prevent redirects
+  // ✅ FIX: The redirection logic is moved inside a useEffect hook
+  useEffect(() => {
+    // If we are still checking for authentication, don't do anything yet.
+    if (loading) {
+      return;
+    }
+
+    // If the user is NOT authenticated and tries to access a protected dashboard page...
+    if (!isAuthenticated && pathname.startsWith('/dashboard')) {
+      //...redirect them to the authentication page.
+      router.push('/auth');
+    }
+
+    // If the user IS authenticated and they land on the auth page...
+    if (isAuthenticated && pathname.startsWith('/auth')) {
+      //...redirect them to their dashboard.
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, loading, pathname, router]);
+
+  // While loading, show the loading screen.
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -18,22 +38,11 @@ export default function ClientAuthProvider({ children }) {
     );
   }
 
-  // 2. If finished loading and user is NOT authenticated,
-  // and they are trying to access a protected page...
-  if (!isAuthenticated && pathname.startsWith('/dashboard')) {
-    // Redirect them to the authentication page
-    router.push('/auth');
-    return null; // Render nothing while redirecting
+  // To prevent a flicker of the old page while redirecting, we can return null.
+  if ((!isAuthenticated && pathname.startsWith('/dashboard')) || (isAuthenticated && pathname.startsWith('/auth'))) {
+    return null;
   }
 
-  // 3. If finished loading and user IS authenticated,
-  // and they are on the auth page...
-  if (isAuthenticated && pathname.startsWith('/auth')) {
-    // Redirect them to their dashboard
-    router.push('/dashboard');
-    return null; // Render nothing while redirecting
-  }
-
-  // 4. If none of the above, render the page
+  // If none of the redirect conditions are met, render the page's content.
   return children;
 }

@@ -4,9 +4,11 @@ import React, { useContext } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { AuthContext } from '../../contexts/AuthContext';
+import { useRouter } from 'next/navigation'; // ✅ 1. Import the router
 
-const RegistrationForm = ({ onSuccess }) => {
+const RegistrationForm = () => {
   const { register, error, setError } = useContext(AuthContext);
+  const router = useRouter(); // ✅ 2. Initialize the router
 
   const initialValues = {
     name: '',
@@ -42,11 +44,11 @@ const RegistrationForm = ({ onSuccess }) => {
         password: values.password,
         emergency_contact: values.emergency_contact || `Default Contact: ${values.phone}`,
         entry_point: values.entry_point || 'Not Specified',
-        trip_duration: values.trip_duration || '7', // Default to 7 if empty
+        trip_duration: values.trip_duration || '7',
       };
       
       await register(userData);
-      if (onSuccess) onSuccess();
+      router.push('/dashboard'); // ✅ 3. Add redirection on success
 
     } catch (err) {
       console.error('Registration failed:', err);
