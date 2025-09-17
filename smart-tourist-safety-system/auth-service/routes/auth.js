@@ -483,4 +483,32 @@ router.post('/logout', async (req, res) => {
   }
 });
 
+/**
+ * @route GET /api/auth/verify
+ * @desc Verify JWT token validity
+ * @access Public (token required)
+ */
+router.get('/verify', (req, res) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Expect "Bearer <token>"
+
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      console.error('JWT verification failed:', err.message);
+      return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    // Token is valid
+    res.json({
+      valid: true,
+      user: decoded.user || decoded, // match your login/register payload
+    });
+  });
+});
+
+
 module.exports = router;

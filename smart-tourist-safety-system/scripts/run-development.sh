@@ -1,54 +1,68 @@
 #!/bin/bash
 
+# ---
+# FINAL Corrected run-development.sh Script
+#
+# Fixes:
+# 1. Uses 'npx kill-port' for reliable cross-platform process termination.
+# 2. Actively waits for the database to be ready, eliminating race conditions.
+# 3. Ensures all services are stopped cleanly before starting.
+# ---
+
 echo "🚀 Starting Smart Tourist Safety System - Development Mode"
-set -e
+
+# Function to clean up on exit
+cleanup() {
+    echo ""
+    echo "🛑 Shutting down all services..."
+    npx kill-port 5000 5002 8000 3000 3002 || true
+    docker-compose -f docker-compose.dev.yml down --volumes
+    echo "✅ All services stopped."
+}
+
+# Always run cleanup first to ensure a clean slate
+cleanup
+sleep 2
+
+# Trap CTRL+C to run cleanup
+trap cleanup INT TERM
 
 # Start Databases
+echo "🐳 Starting database containers..."
 docker-compose -f docker-compose.dev.yml up -d postgres redis
-echo "⏳ Waiting for databases..."
-sleep 10
 
-# Start Python Backend Service
+# ✅ NEW: Actively wait for PostgreSQL to be ready
+echo "⏳ Waiting for PostgreSQL to accept connections..."
+until docker-compose -f docker-compose.dev.yml exec -T postgres pg_isready --username=admin --dbname=tourist_safety -q; do
+  >&2 echo "Postgres is unavailable - sleeping"
+  sleep 1
+done
+echo "✅ PostgreSQL is up and running!"
+
+# Start Services
 echo "🐍 Starting Python backend on port 5000..."
 (cd backend && source venv/Scripts/activate && flask run --port=5000) &
-BACKEND_PID=$!
 
-# Start Node.js Auth Service
 echo "🔐 Starting Node.js auth service on port 5002..."
 (cd auth-service && npm install && npm start) &
-AUTH_SERVICE_PID=$!
 
-# Start API Gateway
 echo "GATEWAY: Starting API Gateway on port 8000..."
 (cd api-gateway && npm install && npm start) &
-GATEWAY_PID=$!
 
-# Start Main User Frontend
 echo "🌐 Starting user application on port 3000..."
 (cd frontend/landing && npm install && npm run dev -- --port 3000) &
-MAIN_APP_PID=$!
 
-# Start Admin Dashboard Frontend
 echo "📊 Starting admin dashboard on port 3002..."
 (cd frontend/dashboard && npm install && npm run dev -- --port 3002) &
-ADMIN_DASHBOARD_PID=$!
 
-sleep 8
 echo ""
-echo "✅ All services are up and running!"
+echo "✅ All services are starting up!"
 echo "----------------------------------------"
 echo "➡️  User App: http://localhost:3000"
 echo "➡️  Admin App:  http://localhost:3002"
 echo "➡️  API Gateway: http://localhost:8000"
 echo "----------------------------------------"
-echo "🛑 To stop all services, run: ./scripts/stop-development.sh"
+echo "🛑 Press CTRL+C to stop all services."
 
-# Create the stop script
-cat > scripts/stop-development.sh << STOP_EOF
-#!/bin/bash
-echo "🛑 Stopping all services..."
-kill -9 $BACKEND_PID $AUTH_SERVICE_PID $GATEWAY_PID $MAIN_APP_PID $ADMIN_DASHBOARD_PID 2>/dev/null
-docker-compose -f docker-compose.dev.yml down
-echo "✅ All services stopped."
-STOP_EOF
-chmod +x scripts/stop-development.sh
+# Wait for any process to exit to keep the script running
+wait -n
